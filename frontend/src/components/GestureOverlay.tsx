@@ -10,13 +10,16 @@ interface GestureOverlayProps {
   videoRef: React.RefObject<HTMLVideoElement>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   error: string | null;
+  pointer: { x: number; y: number } | null;
+  selectProgress: number;
 }
 
 const gestureIcons: Record<GestureType, { icon: React.ReactNode; label: string; action: string }> = {
-  open_palm: { icon: '✋', label: 'Open Palm', action: 'Next Page' },
-  closed_fist: { icon: '✊', label: 'Closed Fist', action: 'Previous Page' },
-  pointing: { icon: '👆', label: 'Pointing', action: 'Select' },
-  peace: { icon: '✌️', label: 'Peace Sign', action: 'Menu' },
+  thumbs_up: { icon: '👍', label: 'Thumbs Up', action: 'Next Page' },
+  peace: { icon: '✌️', label: 'Peace Sign', action: 'Previous Page' },
+  open_palm: { icon: '✋', label: 'Open Palm', action: 'Go Home' },
+  pointing: { icon: '👆', label: 'Pointing', action: 'Cursor / Hold to Click' },
+  closed_fist: { icon: '✊', label: 'Closed Fist', action: '—' },
   none: { icon: '🤚', label: 'No Gesture', action: 'Waiting...' },
 };
 
@@ -28,11 +31,32 @@ export function GestureOverlay({
   videoRef,
   canvasRef,
   error,
+  pointer,
+  selectProgress,
 }: GestureOverlayProps) {
   const currentGesture = gestureIcons[gesture];
+  const showCursor = cameraEnabled && !!pointer;
+  const progressDeg = Math.max(0, Math.min(360, Math.round(selectProgress * 360)));
 
   return (
     <>
+      {/* Gesture Cursor - follows pointing finger (in-app only) */}
+      {showCursor && pointer && (
+        <div
+          className="fixed z-50 pointer-events-none"
+          style={{ left: pointer.x, top: pointer.y, transform: 'translate(-50%, -50%)' }}
+        >
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{
+              background: `conic-gradient(hsl(var(--primary)) ${progressDeg}deg, transparent 0deg)`,
+            }}
+          >
+            <div className="w-6 h-6 rounded-full bg-background/80 border border-border" />
+          </div>
+        </div>
+      )}
+
       {/* Camera Preview - Bottom Right */}
       <div className="fixed bottom-4 right-4 z-50">
         <motion.div
@@ -42,24 +66,34 @@ export function GestureOverlay({
         >
           {/* Camera Feed */}
           <div className="relative mb-3">
-            <div className={`w-40 h-30 rounded-lg overflow-hidden bg-secondary ${!cameraEnabled ? 'flex items-center justify-center' : ''}`}>
-              {cameraEnabled ? (
-                <video
-                  ref={videoRef}
-                  className="w-full h-full object-cover transform -scale-x-100"
-                  playsInline
-                  muted
-                />
-              ) : (
-                <div className="text-muted-foreground text-sm text-center p-4">
-                  <CameraOff className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  Camera Off
+            <div className="relative w-48 h-36 rounded-lg overflow-hidden bg-secondary">
+              {/* Always mount the video/canvas so refs exist before enabling camera */}
+              <video
+                ref={videoRef}
+                className="hidden"
+                playsInline
+                muted
+                autoPlay
+              />
+
+              <canvas
+                ref={canvasRef}
+                className={
+                  cameraEnabled
+                    ? 'w-full h-full object-cover transform -scale-x-100'
+                    : 'hidden'
+                }
+              />
+
+              {!cameraEnabled && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-muted-foreground text-sm text-center p-4">
+                    <CameraOff className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    Camera Off
+                  </div>
                 </div>
               )}
             </div>
-            
-            {/* Hidden canvas for processing */}
-            <canvas ref={canvasRef} className="hidden" />
             
             {/* Detection indicator */}
             {isDetecting && (
@@ -116,23 +150,6 @@ export function GestureOverlay({
         </motion.div>
       </div>
 
-      {/* Gesture Action Indicator - Center Screen */}
-      <AnimatePresence>
-        {gesture !== 'none' && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            className="fixed inset-0 pointer-events-none flex items-center justify-center z-40"
-          >
-            <div className="glass-card p-8 rounded-3xl glow-border">
-              <div className="text-6xl mb-4 text-center">{currentGesture.icon}</div>
-              <div className="text-xl font-display text-primary text-center">{currentGesture.action}</div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Gesture Guide - Bottom Left */}
       <div className="fixed bottom-4 left-4 z-50">
         <motion.div
@@ -143,19 +160,27 @@ export function GestureOverlay({
           <h4 className="font-display text-primary mb-3 text-xs">GESTURE CONTROLS</h4>
           <div className="space-y-2">
             <div className="flex items-center gap-3 text-muted-foreground">
-              <span className="text-lg">✋</span>
+              <span className="text-lg">👍</span>
               <ChevronRight className="w-3 h-3 text-primary" />
               <span>Next Page</span>
             </div>
             <div className="flex items-center gap-3 text-muted-foreground">
-              <span className="text-lg">✊</span>
+              <span className="text-lg">✌️</span>
               <ChevronLeft className="w-3 h-3 text-primary" />
               <span>Previous Page</span>
             </div>
             <div className="flex items-center gap-3 text-muted-foreground">
+              <span className="text-lg">✋</span>
+              <Hand className="w-3 h-3 text-primary" />
+              <span>Go Home</span>
+            </div>
+            <div className="flex items-center gap-3 text-muted-foreground">
               <span className="text-lg">👆</span>
               <MousePointer2 className="w-3 h-3 text-primary" />
-              <span>Select Item</span>
+              <span>Move Cursor (Hold to Click)</span>
+            </div>
+            <div className="text-[11px] text-muted-foreground/80 pt-1">
+              Tip: point near top/bottom to scroll
             </div>
           </div>
         </motion.div>

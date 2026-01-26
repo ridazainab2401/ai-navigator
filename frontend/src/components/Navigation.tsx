@@ -1,12 +1,13 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Brain, Home, Search, FolderOpen, Users } from 'lucide-react';
+import { Brain, Home, Search, FolderOpen, Users, Mail } from 'lucide-react';
 
 const navItems = [
   { path: '/', label: 'Home', icon: Home },
   { path: '/research', label: 'Research', icon: Search },
   { path: '/projects', label: 'Projects', icon: FolderOpen },
   { path: '/about', label: 'About', icon: Users },
+  { path: '/contact', label: 'Contact', icon: Mail },
 ];
 
 export function Navigation() {
