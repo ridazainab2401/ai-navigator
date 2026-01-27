@@ -13,7 +13,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Navigation } from "./components/Navigation";
 import { GestureOverlay } from "./components/GestureOverlay";
+import { SpeechOverlay } from "./components/SpeechOverlay";
 import { useGestureDetection, GestureType } from "./hooks/useGestureDetection";
+import {
+  normalizeTranscript,
+  SpeechCommand,
+  useSpeechCommands,
+} from "./hooks/useSpeechCommands";
 import { HomePage } from "./pages/HomePage";
 import { ResearchPage } from "./pages/ResearchPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
@@ -30,6 +36,107 @@ function AppContent() {
   const location = useLocation();
 
   const [selectProgress, setSelectProgress] = useState(0);
+
+  const resolveSpeechTarget = useCallback(
+    (raw: string):
+      | { kind: "route"; route: string }
+      | { kind: "next" }
+      | { kind: "prev" }
+      | { kind: "stop" }
+      | null => {
+      const text = normalizeTranscript(raw);
+      if (!text) return null;
+
+      // Voice control commands
+      if (
+        /\b(stop|disable|turn off|mute)\b/.test(text) &&
+        /\b(listening|voice|mic|microphone)\b/.test(text)
+      ) {
+        return { kind: "stop" };
+      }
+
+      // Page cycling (matches existing gesture/keyboard behavior)
+      if (/\b(next)\b/.test(text) && /\b(page)\b/.test(text)) {
+        return { kind: "next" };
+      }
+      if (/\b(previous|prev|back)\b/.test(text) && /\b(page)\b/.test(text)) {
+        return { kind: "prev" };
+      }
+
+      const navIntent =
+        /\b(go to|goto|open|navigate|take me to|show|visit)\b/.test(text) ||
+        text.startsWith("/") ||
+        /\/(research|projects|about|contact)\b/.test(text);
+
+      const keywordOnly = /\b(home|research|projects?|about|contact)\b/.test(text);
+      if (!navIntent && !keywordOnly) return null;
+
+      // Explicit path mention wins
+      if (/\/(research)\b/.test(text)) return { kind: "route", route: "/research" };
+      if (/\/(projects)\b/.test(text)) return { kind: "route", route: "/projects" };
+      if (/\/(about)\b/.test(text)) return { kind: "route", route: "/about" };
+      if (/\/(contact)\b/.test(text)) return { kind: "route", route: "/contact" };
+
+      // Keyword navigation
+      if (/\b(home|start|main)\b/.test(text)) return { kind: "route", route: "/" };
+      if (/\b(research)\b/.test(text)) return { kind: "route", route: "/research" };
+      if (/\b(projects?|project)\b/.test(text)) return { kind: "route", route: "/projects" };
+      if (/\b(about)\b/.test(text)) return { kind: "route", route: "/about" };
+      if (/\b(contact|email|mail)\b/.test(text)) return { kind: "route", route: "/contact" };
+
+      return null;
+    },
+    [],
+  );
+
+  const stopSpeechRef = useRef<() => void>(() => {});
+  const handleSpeechFinal = useCallback(
+    ({ transcript }: SpeechCommand) => {
+      const target = resolveSpeechTarget(transcript);
+      if (!target) return;
+
+      if (target.kind === "stop") {
+        stopSpeechRef.current();
+        toast.message("Voice control stopped");
+        return;
+      }
+
+      if (target.kind === "next" || target.kind === "prev") {
+        const currentIndex = pages.indexOf(pathnameRef.current);
+        if (currentIndex === -1) return;
+
+        if (target.kind === "next") {
+          const nextIndex = currentIndex < pages.length - 1 ? currentIndex + 1 : 0;
+          navigate(pages[nextIndex]);
+          toast.message("Next page");
+        } else {
+          const prevIndex = currentIndex > 0 ? currentIndex - 1 : pages.length - 1;
+          navigate(pages[prevIndex]);
+          toast.message("Previous page");
+        }
+
+        return;
+      }
+
+      if (target.kind === "route") {
+        navigate(target.route);
+        toast.message(`Navigating to ${target.route}`);
+      }
+    },
+    [navigate, resolveSpeechTarget],
+  );
+
+  const speech = useSpeechCommands({
+    lang: "en-US",
+    continuous: true,
+    interimResults: true,
+    autoRestart: true,
+    onFinal: handleSpeechFinal,
+  });
+
+  useEffect(() => {
+    stopSpeechRef.current = speech.stop;
+  }, [speech.stop]);
 
   const takeScreenshot = useCallback(async () => {
     try {
@@ -382,6 +489,15 @@ function AppContent() {
         error={error}
         pointer={pointer}
         selectProgress={selectProgress}
+      />
+
+      <SpeechOverlay
+        supported={speech.supported}
+        listening={speech.listening}
+        interimTranscript={speech.interimTranscript}
+        lastFinalTranscript={speech.lastFinalTranscript}
+        error={speech.error}
+        onToggle={speech.toggle}
       />
 
       {/* Footer */}
