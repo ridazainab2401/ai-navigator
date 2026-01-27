@@ -45,11 +45,13 @@ ai-navigator/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    cd ai-navigator
    ```
 
 2. **Install Frontend Dependencies**
+
    ```bash
    cd frontend
    npm install
@@ -66,6 +68,7 @@ ai-navigator/
 ### Running the Application
 
 1. **Start the Backend Server**
+
    ```bash
    cd backend
    npm start
@@ -73,6 +76,7 @@ ai-navigator/
    ```
 
 2. **Start the Frontend Development Server**
+
    ```bash
    cd frontend
    npm run dev
@@ -109,6 +113,7 @@ ai-navigator/
 ## 🛠️ Technology Stack
 
 ### Frontend
+
 - **React 18** - UI framework
 - **TypeScript** - Type safety
 - **Vite** - Build tool
@@ -119,6 +124,7 @@ ai-navigator/
 - **Shadcn UI** - Component library
 
 ### Backend
+
 - **Node.js** - Runtime
 - **Express** - Web framework
 - **CORS** - Cross-origin support
@@ -127,7 +133,8 @@ ai-navigator/
 
 ✅ **Multiple Pages**: 5 pages (Home, Research, Projects, About, Contact)
 
-✅ **Gesture Support**: 
+✅ **Gesture Support**:
+
 - Next/Previous page navigation
 - Selection actions
 
@@ -159,15 +166,19 @@ npm run build
 ## 🔧 Configuration
 
 ### Frontend Port
+
 Edit `frontend/vite.config.ts`:
+
 ```typescript
 server: {
-  port: 5173
+  port: 5173;
 }
 ```
 
 ### Backend Port
+
 Edit `backend/.env`:
+
 ```
 PORT=5000
 ```
@@ -175,17 +186,20 @@ PORT=5000
 ## 🐛 Troubleshooting
 
 ### Camera not working
+
 - Ensure browser has camera permissions
 - Check if camera is being used by another application
 - Try using HTTPS (some browsers require it)
 
 ### Gestures not detecting
+
 - Ensure good lighting
 - Keep hand in frame
 - Hold gesture steady for 1 second
 - Make gestures clear and distinct
 
 ### Build errors
+
 - Clear node_modules and reinstall: `rm -rf node_modules && npm install`
 - Check Node.js version: `node --version` (should be v18+)
 

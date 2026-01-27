@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -47,12 +47,24 @@
     --glow-cyan: 185 100% 50%;
     --glow-teal: 175 80% 45%;
     --grid-color: 222 30% 12%;
-    
+
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(185 100% 50%), hsl(175 80% 40%));
-    --gradient-card: linear-gradient(145deg, hsl(222 47% 10% / 0.8), hsl(222 47% 6% / 0.9));
-    --gradient-hero: linear-gradient(180deg, hsl(222 47% 8%) 0%, hsl(222 47% 4%) 100%);
-    
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(185 100% 50%),
+      hsl(175 80% 40%)
+    );
+    --gradient-card: linear-gradient(
+      145deg,
+      hsl(222 47% 10% / 0.8),
+      hsl(222 47% 6% / 0.9)
+    );
+    --gradient-hero: linear-gradient(
+      180deg,
+      hsl(222 47% 8%) 0%,
+      hsl(222 47% 4%) 100%
+    );
+
     /* Shadows */
     --shadow-glow: 0 0 30px hsl(185 100% 50% / 0.3);
     --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.4);
@@ -76,11 +88,16 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Orbitron', sans-serif;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Orbitron", sans-serif;
   }
 }
 
@@ -93,16 +110,20 @@
 
   /* Glow effects */
   .glow-text {
-    text-shadow: 0 0 20px hsl(var(--primary) / 0.6), 0 0 40px hsl(var(--primary) / 0.4);
+    text-shadow:
+      0 0 20px hsl(var(--primary) / 0.6),
+      0 0 40px hsl(var(--primary) / 0.4);
   }
 
   .glow-border {
-    box-shadow: 0 0 15px hsl(var(--primary) / 0.4), inset 0 0 15px hsl(var(--primary) / 0.1);
+    box-shadow:
+      0 0 15px hsl(var(--primary) / 0.4),
+      inset 0 0 15px hsl(var(--primary) / 0.1);
   }
 
   /* Grid background pattern */
   .grid-pattern {
-    background-image: 
+    background-image:
       linear-gradient(hsl(var(--grid-color)) 1px, transparent 1px),
       linear-gradient(90deg, hsl(var(--grid-color)) 1px, transparent 1px);
     background-size: 60px 60px;
@@ -110,7 +131,11 @@
 
   /* Neural network dots */
   .neural-dots {
-    background-image: radial-gradient(circle at 2px 2px, hsl(var(--primary) / 0.15) 1px, transparent 0);
+    background-image: radial-gradient(
+      circle at 2px 2px,
+      hsl(var(--primary) / 0.15) 1px,
+      transparent 0
+    );
     background-size: 40px 40px;
   }
 
@@ -124,15 +149,19 @@
   .animated-border {
     position: relative;
   }
-  
+
   .animated-border::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: -2px;
     border-radius: inherit;
     background: var(--gradient-primary);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     padding: 2px;
@@ -143,7 +172,7 @@
   .page-enter {
     @apply opacity-0 translate-x-8;
   }
-  
+
   .page-enter-active {
     @apply opacity-100 translate-x-0 transition-all duration-500 ease-out;
   }
@@ -154,7 +183,8 @@
   }
 
   @keyframes gesture-pulse {
-    0%, 100% {
+    0%,
+    100% {
       box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
     }
     50% {
@@ -164,20 +194,33 @@
 
   /* Scan line effect */
   .scan-line::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, hsl(var(--primary)), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--primary)),
+      transparent
+    );
     animation: scan 3s linear infinite;
   }
 
   @keyframes scan {
-    0% { top: 0; opacity: 0; }
-    50% { opacity: 1; }
-    100% { top: 100%; opacity: 0; }
+    0% {
+      top: 0;
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      top: 100%;
+      opacity: 0;
+    }
   }
 
   /* Floating animation */
@@ -186,8 +229,13 @@
   }
 
   @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
   }
 }
 

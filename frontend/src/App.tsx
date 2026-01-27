@@ -1,9 +1,15 @@
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster as Sonner, toast } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { useCallback, useEffect, useRef } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Navigation } from "./components/Navigation";
 import { GestureOverlay } from "./components/GestureOverlay";
@@ -17,144 +23,124 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const pages = ['/', '/research', '/projects', '/about', '/contact'];
+const pages = ["/", "/research", "/projects", "/about", "/contact"];
 
 function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [selectProgress, setSelectProgress] = useState(0);
+
+  const takeScreenshot = useCallback(async () => {
+    try {
+      toast.message("Taking screenshot…");
+
+      // Hide gesture UI overlays so they don't appear in the screenshot.
+      const overlays = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-gesture-ui]"),
+      );
+      const previousVisibility = overlays.map((el) => el.style.visibility);
+      overlays.forEach((el) => {
+        el.style.visibility = "hidden";
+      });
+
+      // Let the browser paint the hidden state.
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+
+      const { default: html2canvas } = await import("html2canvas");
+      // Capture ONLY the visible viewport (window), not the full page.
+      const canvas = await html2canvas(document.documentElement, {
+        useCORS: true,
+        foreignObjectRendering: true,
+        backgroundColor: null,
+        scale: Math.min(2, window.devicePixelRatio || 1),
+        x: window.scrollX,
+        y: window.scrollY,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        onclone: (clonedDoc) => {
+          // html2canvas can render heavy glow/shadow styles as solid rectangles.
+          // Disable glow effects only for the screenshot clone.
+          const style = clonedDoc.createElement("style");
+          style.textContent = `
+            .glow-text, .text-glow { text-shadow: none !important; }
+            .glow-border { box-shadow: none !important; }
+          `;
+          clonedDoc.head.appendChild(style);
+        },
+      });
+
+      // Restore overlays
+      overlays.forEach((el, i) => {
+        el.style.visibility = previousVisibility[i] ?? "";
+      });
+
+      const dataUrl = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = `ai-navigator-${new Date().toISOString().replace(/[:.]/g, "-")}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      toast.success("Screenshot saved");
+    } catch (err) {
+      console.error("Screenshot failed", err);
+      toast.error("Screenshot failed");
+    }
+  }, []);
 
   const pathnameRef = useRef(location.pathname);
   useEffect(() => {
     pathnameRef.current = location.pathname;
   }, [location.pathname]);
 
-  const cameraControlsRef = useRef<{ start: () => void; stop: () => void; enabled: boolean }>({
+  const cameraControlsRef = useRef<{
+    start: () => void;
+    stop: () => void;
+    enabled: boolean;
+  }>({
     start: () => {},
     stop: () => {},
     enabled: false,
   });
 
-  const performSelectAction = useCallback(() => {
-    const active = document.activeElement as HTMLElement | null;
+  const handleGesture = useCallback(
+    (gesture: GestureType) => {
+      const currentIndex = pages.indexOf(pathnameRef.current);
 
-    const isClickable = (el: HTMLElement | null) => {
-      if (!el) return false;
-      const tag = el.tagName.toLowerCase();
-      if (tag === 'button' || tag === 'a') return true;
-      const role = el.getAttribute('role');
-      if (role === 'button' || role === 'link') return true;
-      if (tag === 'input') {
-        const type = (el as HTMLInputElement).type;
-        return type === 'button' || type === 'submit';
+      switch (gesture) {
+        case "thumbs_up":
+          // Next page
+          if (currentIndex < pages.length - 1) {
+            navigate(pages[currentIndex + 1]);
+          } else {
+            navigate(pages[0]); // Loop back to first page
+          }
+          break;
+        case "peace":
+          // Previous page
+          if (currentIndex > 0) {
+            navigate(pages[currentIndex - 1]);
+          } else {
+            navigate(pages[pages.length - 1]); // Loop to last page
+          }
+          break;
+        case "pointing":
+          // Pointing is used for cursor movement + scrolling
+          break;
+        case "open_palm":
+          // Navigate to home
+          navigate("/");
+          break;
+        case "three_finger":
+          // Take screenshot
+          void takeScreenshot();
+          break;
       }
-      return false;
-    };
-
-    // 1) Prefer clicking the currently focused element
-    if (active && active !== document.body && active !== document.documentElement && isClickable(active)) {
-      active.click();
-      return;
-    }
-
-    // 2) Otherwise click the first visible action in the main content
-    const scope = document.getElementById('app-main') ?? document;
-    const candidates = Array.from(
-      scope.querySelectorAll<HTMLElement>('a[href],button,[role="button"],[role="link"],input[type="submit"],input[type="button"]'),
-    );
-
-    const firstVisible = candidates.find((el) => {
-      const style = window.getComputedStyle(el);
-      const hidden = style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0';
-      const disabled = (el as HTMLButtonElement).disabled || el.getAttribute('aria-disabled') === 'true';
-      const inLayout = !!el.offsetParent;
-      return !hidden && !disabled && inLayout;
-    });
-
-    if (firstVisible) {
-      firstVisible.focus();
-      firstVisible.click();
-    }
-  }, []);
-
-  const clickAtPoint = useCallback((x: number, y: number) => {
-    const main = document.getElementById('app-main');
-    const stack = document.elementsFromPoint(x, y) as unknown as HTMLElement[];
-    const target = (main ? stack.find((el) => main.contains(el)) : stack[0]) ?? null;
-
-    if (!target) {
-      performSelectAction();
-      return;
-    }
-
-    const isClickable = (el: HTMLElement | null) => {
-      if (!el) return false;
-      const tag = el.tagName.toLowerCase();
-      if (tag === 'button' || tag === 'a') return true;
-      const role = el.getAttribute('role');
-      if (role === 'button' || role === 'link') return true;
-      if (tag === 'input') {
-        const type = (el as HTMLInputElement).type;
-        return type === 'button' || type === 'submit';
-      }
-      return false;
-    };
-
-    let el: HTMLElement | null = target;
-    while (el && el !== document.body && !isClickable(el)) {
-      el = el.parentElement;
-    }
-
-    if (el && isClickable(el)) {
-      // If it's a client-side route link, navigate directly (more reliable than synthetic clicks).
-      if (el instanceof HTMLAnchorElement) {
-        const href = el.getAttribute('href');
-        if (href && href.startsWith('/')) {
-          navigate(href);
-          return;
-        }
-      }
-
-      el.focus();
-      // Some components behave better with actual pointer/mouse events.
-      el.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
-      el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
-      el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
-      el.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
-      el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, clientX: x, clientY: y }));
-    } else {
-      performSelectAction();
-    }
-  }, [navigate, performSelectAction]);
-  
-  const handleGesture = useCallback((gesture: GestureType) => {
-    const currentIndex = pages.indexOf(pathnameRef.current);
-    
-    switch (gesture) {
-      case 'thumbs_up':
-        // Next page
-        if (currentIndex < pages.length - 1) {
-          navigate(pages[currentIndex + 1]);
-        } else {
-          navigate(pages[0]); // Loop back to first page
-        }
-        break;
-      case 'peace':
-        // Previous page
-        if (currentIndex > 0) {
-          navigate(pages[currentIndex - 1]);
-        } else {
-          navigate(pages[pages.length - 1]); // Loop to last page
-        }
-        break;
-      case 'pointing':
-        // Pointing is used for cursor movement + dwell-to-click (handled by onSelect)
-        break;
-      case 'open_palm':
-        // Navigate to home
-        navigate('/');
-        break;
-    }
-  }, [navigate]);
+    },
+    [navigate, takeScreenshot],
+  );
 
   const {
     videoRef,
@@ -163,15 +149,143 @@ function AppContent() {
     isDetecting,
     cameraEnabled,
     pointer,
-    selectProgress,
     startCamera,
     stopCamera,
     error,
   } = useGestureDetection({
     onGestureDetected: handleGesture,
-    onSelect: (pos) => clickAtPoint(pos.x, pos.y),
     cooldownMs: 1500, // Prevent rapid navigation
   });
+
+  // Dwell-to-click while pointing (finger up). This provides click support even
+  // with jittery tracking by requiring a short stable hover.
+  const clickStateRef = useRef<{
+    element: HTMLElement | null;
+    startedAt: number;
+    startX: number;
+    startY: number;
+    lastClickAt: number;
+  }>({
+    element: null,
+    startedAt: 0,
+    startX: 0,
+    startY: 0,
+    lastClickAt: 0,
+  });
+
+  const findClickableAtPoint = useCallback((x: number, y: number) => {
+    const el = document.elementFromPoint(x, y) as HTMLElement | null;
+    if (!el) return null;
+
+    const clickable = el.closest(
+      'a,button,[role="button"],input[type="button"],input[type="submit"],[data-gesture-click]',
+    ) as HTMLElement | null;
+
+    if (!clickable) return null;
+
+    if (
+      clickable.getAttribute("aria-disabled") === "true" ||
+      (clickable instanceof HTMLButtonElement && clickable.disabled) ||
+      (clickable instanceof HTMLInputElement && clickable.disabled)
+    ) {
+      return null;
+    }
+
+    return clickable;
+  }, []);
+
+  const dispatchClickAt = useCallback(
+    (target: HTMLElement, x: number, y: number) => {
+      target.focus?.();
+
+      const eventInit: MouseEventInit = {
+        bubbles: true,
+        cancelable: true,
+        clientX: x,
+        clientY: y,
+        button: 0,
+      };
+
+      // Mimic a basic click sequence for better compatibility with UI libs.
+      target.dispatchEvent(new MouseEvent("pointerdown", eventInit));
+      target.dispatchEvent(new MouseEvent("mousedown", eventInit));
+      target.dispatchEvent(new MouseEvent("pointerup", eventInit));
+      target.dispatchEvent(new MouseEvent("mouseup", eventInit));
+      target.dispatchEvent(new MouseEvent("click", eventInit));
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (!cameraEnabled || !pointer || gesture !== "pointing") {
+      clickStateRef.current.element = null;
+      clickStateRef.current.startedAt = 0;
+      setSelectProgress(0);
+      return;
+    }
+
+    const DWELL_MS = 700;
+    const MOVE_TOLERANCE_PX = 22;
+    const CLICK_COOLDOWN_MS = 900;
+
+    let raf: number | null = null;
+    const tick = () => {
+      const now = Date.now();
+      const clickable = findClickableAtPoint(pointer.x, pointer.y);
+
+      if (!clickable) {
+        clickStateRef.current.element = null;
+        clickStateRef.current.startedAt = 0;
+        setSelectProgress(0);
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+
+      const st = clickStateRef.current;
+      const isSame = st.element === clickable;
+
+      if (!isSame) {
+        st.element = clickable;
+        st.startedAt = now;
+        st.startX = pointer.x;
+        st.startY = pointer.y;
+        setSelectProgress(0);
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+
+      const moved = Math.hypot(pointer.x - st.startX, pointer.y - st.startY);
+      if (moved > MOVE_TOLERANCE_PX) {
+        st.startedAt = now;
+        st.startX = pointer.x;
+        st.startY = pointer.y;
+        setSelectProgress(0);
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+
+      const elapsed = now - st.startedAt;
+      const progress = Math.max(0, Math.min(1, elapsed / DWELL_MS));
+      setSelectProgress(progress);
+
+      if (progress >= 1 && now - st.lastClickAt > CLICK_COOLDOWN_MS) {
+        st.lastClickAt = now;
+        dispatchClickAt(clickable, pointer.x, pointer.y);
+        // Reset dwell so it won't immediately click again.
+        st.startedAt = now;
+        st.startX = pointer.x;
+        st.startY = pointer.y;
+        setSelectProgress(0);
+      }
+
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [cameraEnabled, pointer, gesture, findClickableAtPoint, dispatchClickAt]);
 
   useEffect(() => {
     cameraControlsRef.current.start = startCamera;
@@ -183,13 +297,13 @@ function AppContent() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const currentIndex = pages.indexOf(location.pathname);
-      
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
         e.preventDefault();
         if (currentIndex < pages.length - 1) {
           navigate(pages[currentIndex + 1]);
         }
-      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
         e.preventDefault();
         if (currentIndex > 0) {
           navigate(pages[currentIndex - 1]);
@@ -197,8 +311,8 @@ function AppContent() {
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [location.pathname, navigate]);
 
   // Auto-scroll while pointing near edges
@@ -212,9 +326,9 @@ function AppContent() {
     const tick = () => {
       const h = window.innerHeight;
       if (pointer.y < EDGE_PX) {
-        window.scrollBy({ top: -SPEED_PX, left: 0, behavior: 'auto' });
+        window.scrollBy({ top: -SPEED_PX, left: 0, behavior: "auto" });
       } else if (pointer.y > h - EDGE_PX) {
-        window.scrollBy({ top: SPEED_PX, left: 0, behavior: 'auto' });
+        window.scrollBy({ top: SPEED_PX, left: 0, behavior: "auto" });
       }
       raf = requestAnimationFrame(tick);
     };
@@ -236,7 +350,7 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      
+
       <AnimatePresence mode="wait">
         <motion.div
           key={location.pathname}
@@ -257,7 +371,7 @@ function AppContent() {
           </main>
         </motion.div>
       </AnimatePresence>
-      
+
       <GestureOverlay
         gesture={gesture}
         isDetecting={isDetecting}
@@ -269,11 +383,14 @@ function AppContent() {
         pointer={pointer}
         selectProgress={selectProgress}
       />
-      
+
       {/* Footer */}
       <footer className="border-t border-border/50 py-8 mt-16">
         <div className="container mx-auto px-6 text-center text-sm text-muted-foreground">
-          <p>© 2024 AI Center of Excellence. Navigate with gestures or keyboard arrows.</p>
+          <p>
+            © 2024 AI Center of Excellence. Navigate with gestures or keyboard
+            arrows.
+          </p>
         </div>
       </footer>
     </div>

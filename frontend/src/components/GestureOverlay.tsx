@@ -1,6 +1,13 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { Hand, Camera, CameraOff, ChevronLeft, ChevronRight, MousePointer2 } from 'lucide-react';
-import { GestureType } from '@/hooks/useGestureDetection';
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Hand,
+  Camera,
+  CameraOff,
+  ChevronLeft,
+  ChevronRight,
+  MousePointer2,
+} from "lucide-react";
+import { GestureType } from "@/hooks/useGestureDetection";
 
 interface GestureOverlayProps {
   gesture: GestureType;
@@ -14,13 +21,17 @@ interface GestureOverlayProps {
   selectProgress: number;
 }
 
-const gestureIcons: Record<GestureType, { icon: React.ReactNode; label: string; action: string }> = {
-  thumbs_up: { icon: '👍', label: 'Thumbs Up', action: 'Next Page' },
-  peace: { icon: '✌️', label: 'Peace Sign', action: 'Previous Page' },
-  open_palm: { icon: '✋', label: 'Open Palm', action: 'Go Home' },
-  pointing: { icon: '👆', label: 'Pointing', action: 'Cursor / Hold to Click' },
-  closed_fist: { icon: '✊', label: 'Closed Fist', action: '—' },
-  none: { icon: '🤚', label: 'No Gesture', action: 'Waiting...' },
+const gestureIcons: Record<
+  GestureType,
+  { icon: React.ReactNode; label: string; action: string }
+> = {
+  thumbs_up: { icon: "👍", label: "Thumbs Up", action: "Next Page" },
+  peace: { icon: "✌️", label: "Peace Sign", action: "Previous Page" },
+  three_finger: { icon: "🤟", label: "Three Fingers", action: "Screenshot" },
+  open_palm: { icon: "✋", label: "Open Palm", action: "Go Home" },
+  pointing: { icon: "👆", label: "Pointing", action: "Cursor" },
+  closed_fist: { icon: "✊", label: "Closed Fist", action: "—" },
+  none: { icon: "🤚", label: "No Gesture", action: "Waiting..." },
 };
 
 export function GestureOverlay({
@@ -36,29 +47,52 @@ export function GestureOverlay({
 }: GestureOverlayProps) {
   const currentGesture = gestureIcons[gesture];
   const showCursor = cameraEnabled && !!pointer;
-  const progressDeg = Math.max(0, Math.min(360, Math.round(selectProgress * 360)));
+  const progress = Math.max(0, Math.min(1, selectProgress));
 
   return (
     <>
       {/* Gesture Cursor - follows pointing finger (in-app only) */}
       {showCursor && pointer && (
         <div
+          data-gesture-ui
           className="fixed z-50 pointer-events-none"
-          style={{ left: pointer.x, top: pointer.y, transform: 'translate(-50%, -50%)' }}
+          style={{
+            left: pointer.x,
+            top: pointer.y,
+            transform: "translate(-50%, -50%)",
+          }}
         >
-          <div
-            className="w-10 h-10 rounded-full flex items-center justify-center"
-            style={{
-              background: `conic-gradient(hsl(var(--primary)) ${progressDeg}deg, transparent 0deg)`,
-            }}
-          >
-            <div className="w-6 h-6 rounded-full bg-background/80 border border-border" />
+          <div className="relative w-7 h-7">
+            <div className="absolute inset-0 rounded-full bg-background/80 border border-border" />
+
+            {progress > 0 && (
+              <svg
+                className="absolute inset-0"
+                viewBox="0 0 28 28"
+                width={28}
+                height={28}
+              >
+                <circle
+                  cx="14"
+                  cy="14"
+                  r="12"
+                  fill="none"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeDasharray={2 * Math.PI * 12}
+                  strokeDashoffset={2 * Math.PI * 12 * (1 - progress)}
+                  transform="rotate(-90 14 14)"
+                  opacity={0.9}
+                />
+              </svg>
+            )}
           </div>
         </div>
       )}
 
       {/* Camera Preview - Bottom Right */}
-      <div className="fixed bottom-4 right-4 z-50">
+      <div data-gesture-ui className="fixed bottom-4 right-4 z-50">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -80,8 +114,8 @@ export function GestureOverlay({
                 ref={canvasRef}
                 className={
                   cameraEnabled
-                    ? 'w-full h-full object-cover transform -scale-x-100'
-                    : 'hidden'
+                    ? "w-full h-full object-cover transform -scale-x-100"
+                    : "hidden"
                 }
               />
 
@@ -94,7 +128,7 @@ export function GestureOverlay({
                 </div>
               )}
             </div>
-            
+
             {/* Detection indicator */}
             {isDetecting && (
               <div className="absolute top-2 left-2">
@@ -105,7 +139,7 @@ export function GestureOverlay({
               </div>
             )}
           </div>
-          
+
           {/* Gesture Display */}
           <AnimatePresence mode="wait">
             <motion.div
@@ -116,18 +150,22 @@ export function GestureOverlay({
               className="text-center mb-3"
             >
               <div className="text-3xl mb-1">{currentGesture.icon}</div>
-              <div className="text-xs text-muted-foreground">{currentGesture.label}</div>
-              <div className="text-xs text-primary font-medium">{currentGesture.action}</div>
+              <div className="text-xs text-muted-foreground">
+                {currentGesture.label}
+              </div>
+              <div className="text-xs text-primary font-medium">
+                {currentGesture.action}
+              </div>
             </motion.div>
           </AnimatePresence>
-          
+
           {/* Toggle Button */}
           <button
             onClick={onToggleCamera}
             className={`w-full py-2 px-4 rounded-lg font-medium text-sm transition-all ${
               cameraEnabled
-                ? 'bg-destructive/20 text-destructive hover:bg-destructive/30'
-                : 'bg-primary/20 text-primary hover:bg-primary/30'
+                ? "bg-destructive/20 text-destructive hover:bg-destructive/30"
+                : "bg-primary/20 text-primary hover:bg-primary/30"
             }`}
           >
             {cameraEnabled ? (
@@ -140,7 +178,7 @@ export function GestureOverlay({
               </span>
             )}
           </button>
-          
+
           {/* Error message */}
           {error && (
             <div className="mt-2 text-xs text-destructive text-center">
@@ -151,13 +189,15 @@ export function GestureOverlay({
       </div>
 
       {/* Gesture Guide - Bottom Left */}
-      <div className="fixed bottom-4 left-4 z-50">
+      <div data-gesture-ui className="fixed bottom-4 left-4 z-50">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="glass-card p-4 rounded-xl text-sm"
         >
-          <h4 className="font-display text-primary mb-3 text-xs">GESTURE CONTROLS</h4>
+          <h4 className="font-display text-primary mb-3 text-xs">
+            GESTURE CONTROLS
+          </h4>
           <div className="space-y-2">
             <div className="flex items-center gap-3 text-muted-foreground">
               <span className="text-lg">👍</span>
@@ -177,7 +217,12 @@ export function GestureOverlay({
             <div className="flex items-center gap-3 text-muted-foreground">
               <span className="text-lg">👆</span>
               <MousePointer2 className="w-3 h-3 text-primary" />
-              <span>Move Cursor (Hold to Click)</span>
+              <span>Move Cursor</span>
+            </div>
+            <div className="flex items-center gap-3 text-muted-foreground">
+              <span className="text-lg">🤟</span>
+              <span className="w-3 h-3" />
+              <span>Screenshot</span>
             </div>
             <div className="text-[11px] text-muted-foreground/80 pt-1">
               Tip: point near top/bottom to scroll

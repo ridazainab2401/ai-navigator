@@ -80,43 +80,43 @@ ai-navigator/
 
 ## 📊 File Count Summary
 
-| Category | Count | Details |
-|----------|-------|---------|
-| **Pages** | 6 | Home, Research, Projects, About, Contact, 404 |
-| **Components** | 45+ | GestureOverlay, Navigation, 40+ UI components |
-| **Hooks** | 3 | useGestureDetection, use-mobile, use-toast |
-| **Documentation** | 5 | README, SETUP, DEMO, SUMMARY, STRUCTURE |
-| **Scripts** | 2 | setup.bat, start-servers.bat |
-| **Config Files** | 10+ | Vite, TypeScript, Tailwind, ESLint, etc. |
+| Category          | Count | Details                                       |
+| ----------------- | ----- | --------------------------------------------- |
+| **Pages**         | 6     | Home, Research, Projects, About, Contact, 404 |
+| **Components**    | 45+   | GestureOverlay, Navigation, 40+ UI components |
+| **Hooks**         | 3     | useGestureDetection, use-mobile, use-toast    |
+| **Documentation** | 5     | README, SETUP, DEMO, SUMMARY, STRUCTURE       |
+| **Scripts**       | 2     | setup.bat, start-servers.bat                  |
+| **Config Files**  | 10+   | Vite, TypeScript, Tailwind, ESLint, etc.      |
 
 ## 🔑 Key Files Explained
 
 ### Frontend Key Files
 
-| File | Purpose | Technologies |
-|------|---------|-------------|
-| `useGestureDetection.ts` | Hand gesture recognition | MediaPipe Hands, Camera Utils |
-| `GestureOverlay.tsx` | Camera UI & gesture feedback | React, Framer Motion |
-| `App.tsx` | Main app, routing, gesture handling | React Router, React Hooks |
-| `*Page.tsx` | Individual page components | React, TypeScript, Tailwind |
+| File                     | Purpose                             | Technologies                  |
+| ------------------------ | ----------------------------------- | ----------------------------- |
+| `useGestureDetection.ts` | Hand gesture recognition            | MediaPipe Hands, Camera Utils |
+| `GestureOverlay.tsx`     | Camera UI & gesture feedback        | React, Framer Motion          |
+| `App.tsx`                | Main app, routing, gesture handling | React Router, React Hooks     |
+| `*Page.tsx`              | Individual page components          | React, TypeScript, Tailwind   |
 
 ### Backend Key Files
 
-| File | Purpose | Endpoints |
-|------|---------|-----------|
+| File        | Purpose            | Endpoints                                             |
+| ----------- | ------------------ | ----------------------------------------------------- |
 | `server.js` | Express API server | /api/health, /api/research, /api/projects, /api/about |
-| `.env` | Configuration | PORT=5000 |
+| `.env`      | Configuration      | PORT=5000                                             |
 
 ### Setup & Documentation
 
-| File | Purpose | For |
-|------|---------|-----|
-| `README.md` | Complete project guide | Developers & Users |
-| `SETUP_GUIDE.md` | Quick 3-step setup | First-time setup |
-| `DEMO_GUIDE.md` | Gesture demo instructions | Evaluation & Demo |
-| `PROJECT_SUMMARY.md` | Requirements checklist | Evaluation |
-| `setup.bat` | Automated install | Windows users |
-| `start-servers.bat` | Start both servers | Windows users |
+| File                 | Purpose                   | For                |
+| -------------------- | ------------------------- | ------------------ |
+| `README.md`          | Complete project guide    | Developers & Users |
+| `SETUP_GUIDE.md`     | Quick 3-step setup        | First-time setup   |
+| `DEMO_GUIDE.md`      | Gesture demo instructions | Evaluation & Demo  |
+| `PROJECT_SUMMARY.md` | Requirements checklist    | Evaluation         |
+| `setup.bat`          | Automated install         | Windows users      |
+| `start-servers.bat`  | Start both servers        | Windows users      |
 
 ## 🎯 Gesture Detection Flow
 
@@ -184,14 +184,16 @@ ai-navigator/
 ## 📦 Dependencies Overview
 
 ### Frontend Dependencies (package.json)
+
 - **Core**: react, react-dom, react-router-dom
 - **Gesture**: @mediapipe/hands, @mediapipe/camera_utils
-- **UI**: @radix-ui/*, lucide-react, framer-motion
+- **UI**: @radix-ui/\*, lucide-react, framer-motion
 - **Styling**: tailwindcss, tailwindcss-animate
 - **Forms**: react-hook-form, zod
 - **Build**: vite, typescript, vitest
 
 ### Backend Dependencies (package.json)
+
 - **Core**: express
 - **Middleware**: cors, dotenv
 - **Dev**: nodemon
@@ -230,26 +232,26 @@ App
 
 ## 🔧 Configuration Files
 
-| File | Purpose | Key Settings |
-|------|---------|-------------|
-| `vite.config.ts` | Vite build config | Port 5173, React plugin |
-| `tailwind.config.ts` | Tailwind CSS | Custom colors, animations |
-| `tsconfig.json` | TypeScript | Path aliases, strict mode |
-| `eslint.config.js` | Linting rules | React, TypeScript rules |
-| `vitest.config.ts` | Testing setup | Test environment |
+| File                 | Purpose           | Key Settings              |
+| -------------------- | ----------------- | ------------------------- |
+| `vite.config.ts`     | Vite build config | Port 5173, React plugin   |
+| `tailwind.config.ts` | Tailwind CSS      | Custom colors, animations |
+| `tsconfig.json`      | TypeScript        | Path aliases, strict mode |
+| `eslint.config.js`   | Linting rules     | React, TypeScript rules   |
+| `vitest.config.ts`   | Testing setup     | Test environment          |
 
 ## 📈 Technology Choices
 
-| Requirement | Technology | Why? |
-|------------|------------|------|
-| Gesture Recognition | MediaPipe Hands | Industry-standard, accurate, real-time |
-| Frontend Framework | React 18 | Modern, component-based, large ecosystem |
-| Type Safety | TypeScript | Catch errors early, better IDE support |
-| Styling | Tailwind CSS | Rapid development, consistent design |
-| Animation | Framer Motion | Smooth, declarative animations |
-| Routing | React Router v6 | Standard React routing solution |
-| Backend | Express.js | Simple, flexible, widely used |
-| Build Tool | Vite | Fast HMR, modern, optimized builds |
+| Requirement         | Technology      | Why?                                     |
+| ------------------- | --------------- | ---------------------------------------- |
+| Gesture Recognition | MediaPipe Hands | Industry-standard, accurate, real-time   |
+| Frontend Framework  | React 18        | Modern, component-based, large ecosystem |
+| Type Safety         | TypeScript      | Catch errors early, better IDE support   |
+| Styling             | Tailwind CSS    | Rapid development, consistent design     |
+| Animation           | Framer Motion   | Smooth, declarative animations           |
+| Routing             | React Router v6 | Standard React routing solution          |
+| Backend             | Express.js      | Simple, flexible, widely used            |
+| Build Tool          | Vite            | Fast HMR, modern, optimized builds       |
 
 ---
 

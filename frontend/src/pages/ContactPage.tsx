@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, User, MessageSquare } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { motion } from "framer-motion";
+import { Mail, Phone, MapPin, Send, User, MessageSquare } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 export function ContactPage() {
   return (
@@ -17,7 +17,8 @@ export function ContactPage() {
             Get In Touch
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Have questions about our AI research or want to collaborate? We'd love to hear from you.
+            Have questions about our AI research or want to collaborate? We'd
+            love to hear from you.
           </p>
         </motion.div>
 
@@ -116,9 +117,12 @@ export function ContactPage() {
                 <div>
                   <h3 className="font-semibold mb-1">Address</h3>
                   <p className="text-muted-foreground">
-                    AI Center of Excellence<br />
-                    123 AI Street, Innovation Hub<br />
-                    Tech City, TC 12345<br />
+                    AI Center of Excellence
+                    <br />
+                    123 AI Street, Innovation Hub
+                    <br />
+                    Tech City, TC 12345
+                    <br />
                     United States
                   </p>
                 </div>
@@ -153,27 +157,29 @@ export function ContactPage() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="mt-16"
         >
-          <h2 className="text-3xl font-bold text-center mb-12">Our Leadership Team</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">
+            Our Leadership Team
+          </h2>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
               {
-                name: 'Dr. Sarah Johnson',
-                role: 'Director of AI Research',
-                bio: 'PhD in Machine Learning with 15+ years of experience in neural networks and deep learning.',
-                image: '👩‍💼'
+                name: "Dr. Sarah Johnson",
+                role: "Director of AI Research",
+                bio: "PhD in Machine Learning with 15+ years of experience in neural networks and deep learning.",
+                image: "👩‍💼",
               },
               {
-                name: 'Prof. Michael Chen',
-                role: 'Head of Computer Vision',
-                bio: 'Leading expert in image recognition, object detection, and visual AI systems.',
-                image: '👨‍🏫'
+                name: "Prof. Michael Chen",
+                role: "Head of Computer Vision",
+                bio: "Leading expert in image recognition, object detection, and visual AI systems.",
+                image: "👨‍🏫",
               },
               {
-                name: 'Dr. Emily Rodriguez',
-                role: 'NLP Research Lead',
-                bio: 'Specialist in natural language understanding, generation, and conversational AI.',
-                image: '👩‍🔬'
-              }
+                name: "Dr. Emily Rodriguez",
+                role: "NLP Research Lead",
+                bio: "Specialist in natural language understanding, generation, and conversational AI.",
+                image: "👩‍🔬",
+              },
             ].map((member, index) => (
               <Card key={index} className="p-6 glass-card text-center">
                 <div className="text-6xl mb-4">{member.image}</div>

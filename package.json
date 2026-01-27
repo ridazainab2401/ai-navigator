@@ -10,7 +10,13 @@
     "build": "cd frontend && npm run build",
     "start:backend": "cd backend && npm start"
   },
-  "keywords": ["ai", "gesture-recognition", "mediapipe", "react", "typescript"],
+  "keywords": [
+    "ai",
+    "gesture-recognition",
+    "mediapipe",
+    "react",
+    "typescript"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {

@@ -23,7 +23,7 @@ cd backend
 npm install
 npm start
 
-# Terminal 2 - Frontend  
+# Terminal 2 - Frontend
 cd frontend
 npm install
 npm run dev
@@ -50,6 +50,7 @@ Open: http://localhost:5173
 ## ✅ Is It Working?
 
 You should see:
+
 - ✓ Backend: "Server running on port 5000"
 - ✓ Frontend: Opens in browser automatically
 - ✓ Website: AI CoE homepage loads
@@ -59,6 +60,7 @@ You should see:
 ## 🐛 Quick Fixes
 
 **Backend won't start?**
+
 ```bash
 # Kill port 5000 processes
 netstat -ano | findstr :5000
@@ -66,6 +68,7 @@ taskkill /PID <number> /F
 ```
 
 **Frontend errors?**
+
 ```bash
 cd frontend
 rm -rf node_modules
@@ -73,6 +76,7 @@ npm install
 ```
 
 **Camera not working?**
+
 - Use Chrome or Edge
 - Allow camera permission
 - Check camera isn't used elsewhere

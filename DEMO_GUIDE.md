@@ -3,15 +3,18 @@
 ## How to Use the Gesture Navigation
 
 ### Setup (One-time)
+
 1. Double-click `setup.bat` to install all dependencies
 2. Wait for installation to complete
 
 ### Running the App
+
 1. Double-click `start-servers.bat`
 2. Wait for both servers to start (2 terminal windows will open)
 3. Open browser to: `http://localhost:5173`
 
 ### Enabling Gestures
+
 1. Look for the camera panel in the **bottom-right corner**
 2. Click the **"Enable Gestures"** button
 3. Allow camera access when your browser asks
@@ -55,22 +58,26 @@
 ## 🎯 Tips for Best Results
 
 ### Lighting
+
 - ✅ Use good lighting in front of you
 - ✅ Avoid backlighting (window behind you)
 - ✅ Even lighting on your hand
 
 ### Hand Position
+
 - ✅ Keep hand **15-50cm** from camera
 - ✅ Keep hand in camera frame
 - ✅ Face palm toward camera
 
 ### Gesture Execution
+
 - ✅ Make gestures **clear and distinct**
 - ✅ Hold gesture for **1 second**
 - ✅ Wait for detection before next gesture
 - ⚠️ Don't rush between gestures
 
 ### Common Mistakes
+
 - ❌ Hand too close or too far
 - ❌ Poor lighting
 - ❌ Changing gesture too quickly
@@ -102,6 +109,7 @@
 ## 🧪 Testing Procedure
 
 ### Complete Demo Test:
+
 1. ✅ Start with Home page
 2. 👍 Show thumbs up → Goes to Research
 3. 👍 Show thumbs up → Goes to Projects
@@ -116,10 +124,10 @@
 ## 🎥 For Recording/Presentation
 
 ### Best Practice:
+
 1. Position camera to show:
    - Your hand making gestures
    - Screen showing page changes
-   
 2. Speak while demonstrating:
    - "I'm showing thumbs up gesture..."
    - "The page is navigating to Research..."
@@ -134,18 +142,21 @@
 ## 🚨 Troubleshooting During Demo
 
 ### Gesture Not Detecting:
+
 - Check camera preview is showing
 - Improve lighting
 - Move hand closer/further
 - Make gesture more distinct
 
 ### Camera Not Working:
+
 - Refresh browser page
 - Allow camera permission
 - Check camera not used by other app
 - Try Chrome or Edge browser
 
 ### Page Not Changing:
+
 - Hold gesture for 1 full second
 - Wait for cooldown (1.5 seconds between gestures)
 - Ensure gesture is clear and correct
@@ -154,9 +165,10 @@
 
 ✅ **Multiple Pages**: 5 pages (Home, Research, Projects, About, Contact)
 
-✅ **Gesture Navigation**: 
-   - Thumbs up for next page ✓
-   - Peace sign for previous page ✓
+✅ **Gesture Navigation**:
+
+- Thumbs up for next page ✓
+- Peace sign for previous page ✓
 
 ✅ **Camera-Based**: MediaPipe Hands with live video feed ✓
 

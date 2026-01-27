@@ -7,12 +7,14 @@
 Open two terminal windows:
 
 **Terminal 1 - Backend:**
+
 ```bash
 cd backend
 npm install
 ```
 
 **Terminal 2 - Frontend:**
+
 ```bash
 cd frontend
 npm install
@@ -23,17 +25,21 @@ bun install
 ### Step 2: Start the Servers
 
 **Terminal 1 - Backend:**
+
 ```bash
 cd backend
 npm start
 ```
+
 ✅ Backend will run on `http://localhost:5000`
 
 **Terminal 2 - Frontend:**
+
 ```bash
 cd frontend
 npm run dev
 ```
+
 ✅ Frontend will run on `http://localhost:5173`
 
 ### Step 3: Open and Use
@@ -47,12 +53,12 @@ npm run dev
 
 ## 📋 Gesture Commands
 
-| Gesture | Icon | Action |
-|---------|------|--------|
-| Thumbs Up | 👍 | Navigate to next page |
-| Peace Sign | ✌️ | Navigate to previous page |
-| Open Palm | ✋ | Go to home page |
-| Pointing | 👆 | Select (future) |
+| Gesture    | Icon | Action                    |
+| ---------- | ---- | ------------------------- |
+| Thumbs Up  | 👍   | Navigate to next page     |
+| Peace Sign | ✌️   | Navigate to previous page |
+| Open Palm  | ✋   | Go to home page           |
+| Pointing   | 👆   | Select (future)           |
 
 ## 🎯 Testing Checklist
 
@@ -68,11 +74,13 @@ npm run dev
 ## 🔧 Common Issues
 
 ### Camera Not Working
+
 ```
 Solution: Use Chrome/Edge browser, ensure HTTPS or localhost
 ```
 
 ### Backend Not Starting
+
 ```bash
 # Check if port 5000 is in use
 netstat -ano | findstr :5000
@@ -82,6 +90,7 @@ taskkill /PID <PID> /F
 ```
 
 ### Frontend Build Errors
+
 ```bash
 # Clear and reinstall
 cd frontend
