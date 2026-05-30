@@ -1,7 +1,4 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-// @ts-ignore - MediaPipe types
-import { Hands } from "@mediapipe/hands";
-import { HAND_CONNECTIONS } from "@mediapipe/hands";
 
 // MediaPipe Results type
 interface Results {
@@ -197,40 +194,42 @@ export function useGestureDetection(options: UseGestureDetectionOptions = {}) {
       // Draw hand landmarks if detected
       if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
         lastHandSeenAtRef.current = Date.now();
-        for (const landmarks of results.multiHandLandmarks) {
-          // Draw connections
-          ctx.strokeStyle = "#00ff00";
-          ctx.lineWidth = 2;
-          for (const connection of HAND_CONNECTIONS) {
-            const [start, end] = connection;
-            const startLandmark = landmarks[start];
-            const endLandmark = landmarks[end];
-            ctx.beginPath();
-            ctx.moveTo(
-              startLandmark.x * canvas.width,
-              startLandmark.y * canvas.height,
-            );
-            ctx.lineTo(
-              endLandmark.x * canvas.width,
-              endLandmark.y * canvas.height,
-            );
-            ctx.stroke();
+        // Dynamically import HAND_CONNECTIONS for drawing
+        import("@mediapipe/hands").then(({ HAND_CONNECTIONS }) => {
+          for (const landmarks of results.multiHandLandmarks!) {
+            // Draw connections
+            ctx.strokeStyle = "#00ff00";
+            ctx.lineWidth = 2;
+            for (const connection of HAND_CONNECTIONS) {
+              const [start, end] = connection;
+              const startLandmark = landmarks[start];
+              const endLandmark = landmarks[end];
+              ctx.beginPath();
+              ctx.moveTo(
+                startLandmark.x * canvas.width,
+                startLandmark.y * canvas.height,
+              );
+              ctx.lineTo(
+                endLandmark.x * canvas.width,
+                endLandmark.y * canvas.height,
+              );
+              ctx.stroke();
+            }
+            // Draw landmarks
+            ctx.fillStyle = "#ff0000";
+            for (const landmark of landmarks) {
+              ctx.beginPath();
+              ctx.arc(
+                landmark.x * canvas.width,
+                landmark.y * canvas.height,
+                5,
+                0,
+                2 * Math.PI,
+              );
+              ctx.fill();
+            }
           }
-
-          // Draw landmarks
-          ctx.fillStyle = "#ff0000";
-          for (const landmark of landmarks) {
-            ctx.beginPath();
-            ctx.arc(
-              landmark.x * canvas.width,
-              landmark.y * canvas.height,
-              5,
-              0,
-              2 * Math.PI,
-            );
-            ctx.fill();
-          }
-        }
+        });
 
         // Detect raw gesture for this frame
         const handednessLabel: HandednessLabel =
