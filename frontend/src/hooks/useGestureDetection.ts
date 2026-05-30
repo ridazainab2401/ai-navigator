@@ -1,13 +1,6 @@
-import { useEffect, useRef, useState, useCallback } from "react";
 
-// MediaPipe Results type
-interface Results {
-  image?: HTMLCanvasElement;
-  multiHandLandmarks?: Array<
-    Array<{ x: number; y: number; z?: number; visibility?: number }>
-  >;
-  multiHandedness?: Array<{ label: string; score: number }>;
-}
+import { useEffect, useRef, useState, useCallback } from "react";
+import type { Hands, Results as MediaPipeResults } from "@mediapipe/hands";
 
 export type GestureType =
   | "thumbs_up"
@@ -174,7 +167,7 @@ export function useGestureDetection(options: UseGestureDetectionOptions = {}) {
 
   // Handle MediaPipe results
   const onResults = useCallback(
-    (results: Results) => {
+    (results: MediaPipeResults) => {
       if (!canvasRef.current) return;
 
       const canvas = canvasRef.current;
