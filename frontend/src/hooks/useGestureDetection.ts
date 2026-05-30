@@ -1,5 +1,16 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Hands, Results, HAND_CONNECTIONS } from "@mediapipe/hands";
+// @ts-ignore - MediaPipe types
+import { Hands } from "@mediapipe/hands";
+import { HAND_CONNECTIONS } from "@mediapipe/hands";
+
+// MediaPipe Results type
+interface Results {
+  image?: HTMLCanvasElement;
+  multiHandLandmarks?: Array<
+    Array<{ x: number; y: number; z?: number; visibility?: number }>
+  >;
+  multiHandedness?: Array<{ label: string; score: number }>;
+}
 
 export type GestureType =
   | "thumbs_up"
@@ -386,6 +397,14 @@ export function useGestureDetection(options: UseGestureDetectionOptions = {}) {
     if (!videoRef.current) return;
 
     try {
+      // Dynamically import Hands to ensure proper module loading
+      const mediapipeHands = await import("@mediapipe/hands");
+      const HandsConstructor = mediapipeHands.Hands;
+
+      if (!HandsConstructor) {
+        throw new Error("Hands class not found in @mediapipe/hands module");
+      }
+
       // First, request camera access using native browser API
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -417,8 +436,8 @@ export function useGestureDetection(options: UseGestureDetectionOptions = {}) {
       await videoRef.current.play();
 
       // Now initialize MediaPipe
-      const hands = new Hands({
-        locateFile: (file) => {
+      const hands = new HandsConstructor({
+        locateFile: (file: string) => {
           // Pin to the same version as package.json to avoid CDN mismatches
           return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${file}`;
         },
@@ -465,19 +484,27 @@ export function useGestureDetection(options: UseGestureDetectionOptions = {}) {
       console.log("✅ Camera and MediaPipe initialized successfully");
     } catch (err: unknown) {
       console.error("❌ MediaPipe initialization error:", err);
-      const errorName =
-        err &&
-        typeof err === "object" &&
-        "name" in err &&
-        typeof (err as { name?: unknown }).name === "string"
-          ? (err as { name: string }).name
-          : undefined;
-      const errorMessage =
-        errorName === "NotAllowedError"
-          ? "Camera access denied. Please allow camera permissions in your browser."
-          : errorName === "NotFoundError"
-            ? "No camera found. Please connect a camera and try again."
-            : "Failed to initialize gesture detection. Please refresh and try again.";
+
+      let errorMessage =
+        "Failed to initialize gesture detection. Please refresh and try again.";
+
+      if (err instanceof Error) {
+        console.error("Error details:", err.message);
+
+        if (err.name === "NotAllowedError") {
+          errorMessage =
+            "Camera access denied. Please allow camera permissions in your browser.";
+        } else if (err.name === "NotFoundError") {
+          errorMessage =
+            "No camera found. Please connect a camera and try again.";
+        } else if (err.message.includes("Hands class not found")) {
+          errorMessage =
+            "MediaPipe library failed to load. Please refresh the page.";
+        } else if (err.message.includes("getUserMedia")) {
+          errorMessage =
+            "Unable to access camera. Check browser permissions and try again.";
+        }
+      }
 
       setState((prev) => ({
         ...prev,

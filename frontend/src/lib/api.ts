@@ -2,7 +2,7 @@
  * API utility for making requests to the Vercel serverless functions
  */
 
-const API_BASE = '/api';
+const API_BASE = "/api";
 
 export async function fetchHealth() {
   const response = await fetch(`${API_BASE}/health`);
